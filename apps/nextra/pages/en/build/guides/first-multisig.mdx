@@ -19,6 +19,8 @@ You'll learn how to:
 <Callout type="info">
 If you're coming from Ethereum/Solidity, note that Aptos handles multisig differently. Instead of deploying a smart contract like Gnosis Safe, Aptos implements multisig at the protocol level through its account abstraction system. 
 
+![Multisig Diagram](/screenshots/multisig_chart.svg)
+
 We're interfacing with Aptos using the [Aptos Python SDK](https://aptos.dev/en/build/sdks/python-sdk).
 </Callout>
 
@@ -95,6 +97,14 @@ source venv/bin/activate
 
 <Callout type="info">
 On Windows, use `.\venv\Scripts\activate` instead.
+
+If you get an error about scripts not being allowed to run, you can enable them with PowerShell:
+
+```powershell filename="Terminal"
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Confirm by typing `[Y]` and pressing Enter, then retry the activation command.
 </Callout>
 
 This command:
