@@ -24,7 +24,7 @@ This will initialize a typescript package with `quickstart.ts`
   </Tabs.Tab>
   <Tabs.Tab>
     ```bash
-    pnpm init && pnpm add -D typescript @types/node ts-node && pnpx tsc --init && mkdir src && echo 'async function example() { console.log("Running example!")}; example()' > src/quickstart.ts
+    pnpm init && pnpm add -D typescript @types/node ts-node && pnpm exec tsc --init && mkdir src && echo 'async function example() { console.log("Running example!")}; example()' > src/quickstart.ts
     ```
   </Tabs.Tab>
   <Tabs.Tab>
@@ -46,7 +46,7 @@ To test if you have initialized the package correctly run:
   </Tabs.Tab>
   <Tabs.Tab>
     ```bash
-    pnpx ts-node src/quickstart.ts
+    pnpm exec ts-node src/quickstart.ts
     ```
   </Tabs.Tab>
   <Tabs.Tab>
@@ -202,7 +202,7 @@ const executedTransaction = await aptos.waitForTransaction({ transactionHash: pe
   </Tabs.Tab>
   <Tabs.Tab>
     ```bash
-    pnpx ts-node src/quickstart.ts
+    pnpm exec ts-node src/quickstart.ts
     ```
   </Tabs.Tab>
   <Tabs.Tab>
