@@ -2,9 +2,44 @@
 title: "Ethereum to Aptos Cheatsheet"
 ---
 
+import { Tabs, Callout } from 'nextra/components'
+
 # Ethereum to Aptos Cheatsheet
 
-To learn more about the differences and similarities see [Aptos Learn](https://learn.aptoslabs.com/en/tutorials/ethereum-to-aptos-guide/cheat-sheet?workshop=eth-to-aptos)
+This cheatsheet provides a comprehensive comparison between Ethereum and Aptos blockchain development, helping Ethereum developers transition to Aptos and the Move programming language. It highlights key differences in programming models, storage patterns, and security features.
+
+To learn more about Aptos and Move concepts, try the [Ethereum to Aptos workshop on Aptos Learn](https://learn.aptoslabs.com/en/workshops/eth-to-aptos)
+
+![Diagram](/docs/move-vs-solidity.svg)
+
+## Key Takeaways for Ethereum Developers
+
+- **Contract vs Resource Model**: In Solidity, tokens are implemented as state variables in contracts with functions that modify them. In Move, tokens are native "resource" types with built-in move semantics (cannot be copied or discarded, only moved between storage locations) enforced by the compiler.
+
+- **Storage Architecture**: Ethereum uses contract-centric storage where data lives within contracts. Aptos uses an account-centric model where both code (modules) and data (resources) are stored in accounts, fundamentally changing how you structure applications.
+
+- **Security Approach**: Solidity relies on careful implementation to prevent vulnerabilities. Move's type system and bytecode verifier enforce security properties at the language level, making certain classes of bugs (like reentrancy) impossible by design.
+
+- **Execution Model**: Ethereum's EVM uses dynamic dispatch allowing arbitrary contract calls at runtime. Move uses static dispatch with explicit imports, making code execution more predictable and enabling better compiler optimizations.
+
+<Callout type="info">
+**Move's "First-Class" Security**
+
+In programming language theory, "first-class" means that a type or value can be:
+
+1. Passed as an argument to functions
+2. Returned from functions
+3. Assigned to variables
+4. Stored in data structures
+
+In Solidity, tokens are implemented through state variables and functions in a contract, but they aren't first-class citizens of the language itself.
+
+In Move, resources are built into the language's type system with special semantics enforced by the compiler. 
+
+This fundamental difference means Move can provide stronger guarantees about how digital assets behave, preventing issues like double-spending or asset loss at the language level rather than through careful implementation.
+</Callout>
+
+---
 
 ### High Level Overview
 
@@ -55,5 +90,53 @@ To learn more about the differences and similarities see [Aptos Learn](https://l
 | **Function Calling**            | Dynamic dispatch allows for arbitrary smart contract calls.            | Static dispatch aligns with a focus on security and predictable behavior.                                          |
 | **Type Safety**                 | Contract types provide a level of type safety.                         | Module structs and generics in Move offer robust type safety.                                                      |
 | **Transaction Safety**          | Uses nonces for transaction ordering and safety.                       | Uses sequence numbers for transaction ordering and safety.                                                         |
-| **Authenticated Storage**       | Yes, with smart contract storage.                                      | Yes, leveraging Move’s resource model.                                                                             |
+| **Authenticated Storage**       | Yes, with smart contract storage.                                      | Yes, leveraging Move's resource model.                                                                             |
 | **Object Accessibility**        | Objects are not globally accessible; bound to smart contract scope.    | Guaranteed global accessibility of objects.                                                                        |
+
+---
+
+## Side-by-Side Code Examples
+
+### Token Transfer Implementation
+
+<Tabs items={['Solidity (ERC-20)', 'Move (Fungible Asset)']}>
+  <Tabs.Tab>
+    ```solidity
+    // ERC-20 Transfer
+    function transfer(address to, uint256 amount) public returns (bool) {
+        require(balanceOf[msg.sender] >= amount, "Insufficient balance");
+        
+        balanceOf[msg.sender] -= amount;
+        balanceOf[to] += amount;
+        
+        emit Transfer(msg.sender, to, amount);
+        return true;
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```move
+    // Fungible Asset Transfer
+    public fun transfer(
+        sender: &signer,
+        id: Object<Metadata>,
+        to: address,
+        amount: u64,
+    ) {
+        let sender_addr = signer::address_of(sender);
+        let sender_store = ensure_fungible_asset_store_exists(sender_addr);
+        let receiver_store = ensure_fungible_asset_store_exists(to);
+        
+        let fa = withdraw(sender_store, id, amount);
+        deposit(receiver_store, fa);
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### Key Differences Highlighted
+
+- **Solidity**: Uses a global mapping for balances, directly modifies state
+- **Move**: Uses resource-oriented programming with explicit withdraw/deposit operations
+- **Safety**: Move enforces that assets cannot be duplicated or lost during transfers
+- **Authorization**: Move requires a signer reference for the sender, providing stronger authorization

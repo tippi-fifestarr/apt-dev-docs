@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Fonts -->
+  <defs>
+    <style>
+      @font-face {
+        font-family: "Virgil";
+        src: url("https://excalidraw.com/Virgil.woff2");
+      }
+      @font-face {
+        font-family: "Cascadia";
+        src: url("https://excalidraw.com/Cascadia.woff2");
+      }
+      @font-face {
+        font-family: "Assistant";
+        src: url("https://excalidraw.com/Assistant-Regular.woff2");
+      }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="500" fill="#0F1C3F" rx="10" ry="10"/>
+  
+  <!-- Header -->
+  <text x="400" y="50" font-family="Virgil, Segoe UI Emoji" font-size="28" fill="#00A9FF" text-anchor="middle" font-weight="bold">Move vs Solidity: Mental Model Shift</text>
+  
+  <!-- Solidity Column -->
+  <rect x="100" y="100" width="250" height="350" fill="#627EEA" opacity="0.1" rx="10" ry="10" stroke="#627EEA" stroke-width="2"/>
+  <text x="225" y="130" font-family="Virgil, Segoe UI Emoji" font-size="22" fill="#627EEA" text-anchor="middle" font-weight="bold">Solidity</text>
+  
+  <!-- Move Column -->
+  <rect x="450" y="100" width="250" height="350" fill="#00A9FF" opacity="0.1" rx="10" ry="10" stroke="#00A9FF" stroke-width="2"/>
+  <text x="575" y="130" font-family="Virgil, Segoe UI Emoji" font-size="22" fill="#00A9FF" text-anchor="middle" font-weight="bold">Move</text>
+  
+  <!-- Middle Arrow -->
+  <polygon points="380,250 400,230 420,250 400,270" fill="#FFD93D"/>
+  <text x="400" y="250" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="#0F1C3F" text-anchor="middle" font-weight="bold">→</text>
+  
+  <!-- Solidity Characteristics -->
+  <!-- Global Storage -->
+  <rect x="125" y="160" width="200" height="50" fill="#627EEA" opacity="0.2" rx="5" ry="5"/>
+  <text x="225" y="180" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Global Storage</text>
+  <text x="225" y="200" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Data stored at contract level</text>
+  
+  <!-- OOP Model -->
+  <rect x="125" y="220" width="200" height="50" fill="#627EEA" opacity="0.2" rx="5" ry="5"/>
+  <text x="225" y="240" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Object-Oriented Model</text>
+  <text x="225" y="260" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Contracts as objects with state</text>
+  
+  <!-- Smart Contract Security -->
+  <rect x="125" y="280" width="200" height="50" fill="#627EEA" opacity="0.2" rx="5" ry="5"/>
+  <text x="225" y="300" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Security Challenges</text>
+  <text x="225" y="320" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Reentrancy, overflow, etc.</text>
+  
+  <!-- Gas Model -->
+  <rect x="125" y="340" width="200" height="50" fill="#627EEA" opacity="0.2" rx="5" ry="5"/>
+  <text x="225" y="360" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">EVM Gas Model</text>
+  <text x="225" y="380" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Opcodes have fixed gas costs</text>
+  
+  <!-- Move Characteristics -->
+  <!-- Resource-Oriented -->
+  <rect x="475" y="160" width="200" height="50" fill="#00A9FF" opacity="0.2" rx="5" ry="5"/>
+  <text x="575" y="180" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Resource-Oriented</text>
+  <text x="575" y="200" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Assets as first-class citizens</text>
+  
+  <!-- Ownership Model -->
+  <rect x="475" y="220" width="200" height="50" fill="#00A9FF" opacity="0.2" rx="5" ry="5"/>
+  <text x="575" y="240" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Ownership Model</text>
+  <text x="575" y="260" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Resources owned by accounts</text>
+  
+  <!-- Built-in Safety -->
+  <rect x="475" y="280" width="200" height="50" fill="#00A9FF" opacity="0.2" rx="5" ry="5"/>
+  <text x="575" y="300" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">Built-in Safety Features</text>
+  <text x="575" y="320" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">No duplication, no loss of resources</text>
+  
+  <!-- MoveVM -->
+  <rect x="475" y="340" width="200" height="50" fill="#00A9FF" opacity="0.2" rx="5" ry="5"/>
+  <text x="575" y="360" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="white" text-anchor="middle" font-weight="bold">MoveVM Execution</text>
+  <text x="575" y="380" font-family="Virgil, Segoe UI Emoji" font-size="12" fill="white" text-anchor="middle">Bytecode verification for safety</text>
+  
+  <!-- Code Example Column Header -->
+  <text x="225" y="430" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="#627EEA" text-anchor="middle">Solidity Example</text>
+  <text x="575" y="430" font-family="Virgil, Segoe UI Emoji" font-size="14" fill="#00A9FF" text-anchor="middle">Move Example</text>
+  
+  <!-- Code Examples -->
+  <rect x="125" y="440" width="200" height="30" fill="#627EEA" opacity="0.1" rx="5" ry="5"/>
+  <text x="225" y="460" font-family="Cascadia, monospace" font-size="10" fill="white" text-anchor="middle">contract Token { uint balance; }</text>
+  
+  <rect x="475" y="440" width="200" height="30" fill="#00A9FF" opacity="0.1" rx="5" ry="5"/>
+  <text x="575" y="460" font-family="Cascadia, monospace" font-size="10" fill="white" text-anchor="middle">struct Coin has key { value: u64 }</text>
+</svg>
