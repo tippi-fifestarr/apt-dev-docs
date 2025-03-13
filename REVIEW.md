@@ -1,151 +1,202 @@
 # Andrew Filter Review for first-multisig.mdx
 
-## Missing Links
+This document lists issues found in the `apps/nextra/pages/en/build/guides/first-multisig.mdx` file according to the Andrew Filter criteria.
 
-1. **Line 19**: "Aptos implements multisig at the protocol level through its account abstraction system."
-   - **Issue**: This technical concept should link to documentation.
-   - **Suggested Fix**: "Aptos implements multisig at the [protocol level through its account abstraction system](https://aptos.dev/concepts/accounts)."
+## 1. Links Missing
 
-2. **Line 36**: "download Python from [python.org](http://python.org/)."
-   - **Issue**: The link is using http instead of https.
-   - **Suggested Fix**: "download Python from [python.org](https://python.org/)."
+### Line 19-20:
+```
+We're interfacing with Aptos using the [Aptos Python SDK](https://aptos.dev/en/build/sdks/python-sdk).
+```
+**Issue**: The link to the Python SDK is relative and should be updated to a proper URL.
 
-3. **Line 254**: "The Aptos account model facilitates the unique ability to rotate an account's private key."
-   - **Issue**: Technical concept without a link to documentation.
-   - **Suggested Fix**: "The Aptos account model facilitates the unique ability to [rotate an account's private key](https://aptos.dev/concepts/accounts#rotating-authentication-key)."
+### Line 42:
+```
+If you see an error or your Python version is below version 3.7, download Python from [python.org](http://python.org/).
+```
+**Issue**: The link to python.org uses HTTP instead of HTTPS.
 
-4. **Line 599**: "Join the [Aptos Discord](https://discord.gg/aptoslabs) for developer support."
-   - **Issue**: Link should be verified.
-   - **Suggested Fix**: Verify the Discord link is correct and current.
+### Line 301:
+```
+1. Review the [complete code example](https://github.com/aptos-labs/aptos-python-sdk/blob/main/examples/multisig.py) which include all the Advanced Features (see above).
+```
+**Issue**: The link text says "complete code example" but should be more specific about what it links to.
 
-## Grammar Issues
+### Line 302-304:
+```
+2. Learn about [multisig governance in this tutorial](https://aptos.dev/en/build/cli/working-with-move-contracts/multi-signature-tutorial).
+3. Explore [account abstraction in Aptos](https://aptos.dev/concepts/accounts).
+4. Join the [Aptos Discord](https://discord.gg/aptoslabs) for developer support.
+```
+**Issue**: The links to Aptos documentation use relative URLs that should be updated to proper URLs.
 
-1. **Line 19**: "Aptos implements multisig at the protocol level through its account abstraction system."
-   - **Issue**: The term "account abstraction system" is used without prior introduction.
-   - **Suggested Fix**: "Aptos implements multisig at the protocol level through its account system, which abstracts the authentication process from the account identity."
+## 2. Grammar Issues
 
-2. **Line 23**: "As a brief conceptual overview, imagine a bank vault that requires multiple key holders to open it where each key holder must be present and provide their unique key before any access is granted."
-   - **Issue**: Run-on sentence.
-   - **Suggested Fix**: "As a brief conceptual overview, imagine a bank vault that requires multiple key holders to open it. Each key holder must be present and provide their unique key before any access is granted."
+### Line 19-20:
+```
+We're interfacing with Aptos using the [Aptos Python SDK](https://aptos.dev/en/build/sdks/python-sdk).
+```
+**Issue**: This sentence is in first person plural ("We're") which is inconsistent with the rest of the tutorial that uses second person ("you'll learn").
 
-## Precision Issues
+### Line 301:
+```
+1. Review the [complete code example](https://github.com/aptos-labs/aptos-python-sdk/blob/main/examples/multisig.py) which include all the Advanced Features (see above).
+```
+**Issue**: Grammar error - "which include" should be "which includes".
 
-1. **Line 19**: "Aptos implements multisig at the protocol level through its account abstraction system."
-   - **Issue**: Lacks precision about how the account abstraction system works.
-   - **Suggested Fix**: "Aptos implements multisig directly at the protocol level, allowing accounts to require multiple signatures without deploying additional smart contracts."
+### Line 264-265:
+```
+Like gathering two bank managers to sign a withdrawal slip - we need both signatures before the transaction can proceed.
+```
+**Issue**: This is a sentence fragment that should be connected to the previous or next sentence.
 
-2. **Line 36**: "If you see an error or your Python version is below version 3.7, download Python from [python.org](http://python.org/)."
-   - **Issue**: Not specific about what to download.
-   - **Suggested Fix**: "If you see an error or your Python version is below version 3.7, download and install the latest Python version from [python.org](https://python.org/)."
+## 3. Precision Issues
 
-## Conciseness Issues
+### Line 21-22:
+```
+As a brief conceptual overview, imagine a bank vault that requires multiple key holders to open it where each key holder must be present and provide their unique key before any access is granted.
+```
+**Issue**: This is a very long sentence that could be broken up for clarity.
 
-1. **Line 107-111**: "This command: - Creates an isolated Python environment - Installs a fresh Python instance - Keeps project dependencies separate from your system Python - Creates a `venv` folder (you can view but don't modify its contents!)"
-   - **Issue**: Unnecessarily verbose explanation.
-   - **Suggested Fix**: "This command creates an isolated Python environment in a `venv` folder, keeping project dependencies separate from your system Python."
+### Line 76-79:
+```
+This command:
+- Creates an isolated Python environment
+- Installs a fresh Python instance
+- Keeps project dependencies separate from your system Python
+- Creates a `venv` folder (you can view but don't modify its contents!)
+```
+**Issue**: The exclamation mark in the last bullet point is too informal.
 
-2. **Line 123-128**: "This command: - Modifies your terminal's environment variables - Makes your terminal use the Python from `venv` instead of your system Python - You'll see `(venv)` appear at the start of your terminal line - To deactivate later, simply type `deactivate`"
-   - **Issue**: Verbose explanation.
-   - **Suggested Fix**: "This command activates the virtual environment. You'll see `(venv)` at the start of your terminal line. To deactivate later, type `deactivate`."
+### Line 107-110:
+```
+This command:
+- Downloads the Aptos SDK package from PyPI (Python Package Index)
+- Installs it inside your `venv` folder
+- Creates files in `venv/lib/python3.x/site-packages/aptos_sdk`
+- You can view these files by navigating to that directory
+```
+**Issue**: The last bullet point doesn't follow the same pattern as the others (doesn't start with a verb).
 
-3. **Line 140-144**: "This command: - Downloads the Aptos SDK package from PyPI (Python Package Index) - Installs it inside your `venv` folder - Creates files in `venv/lib/python3.x/site-packages/aptos_sdk` - You can view these files by navigating to that directory"
-   - **Issue**: Overly detailed explanation.
-   - **Suggested Fix**: "This command installs the Aptos SDK package from PyPI into your virtual environment."
+## 4. Newline Before Headers/Components
 
-4. **Line 493**: "On devnet, we can easily fund them with test APT"
-   - **Issue**: The word "easily" is unnecessary.
-   - **Suggested Fix**: "On devnet, we fund them with test APT"
+### Line 19:
+```
+<Callout type="info">
+If you're coming from Ethereum/Solidity, note that Aptos handles multisig differently. Instead of deploying a smart contract like Gnosis Safe, Aptos implements multisig at the protocol level through its account abstraction system.
+```
+**Issue**: Missing newline before the text inside the Callout component.
 
-## Ambiguous Pronouns
+### Line 41:
+```
+<Callout type="warning">
+If you see an error or your Python version is below version 3.7, download Python from [python.org](http://python.org/).
+</Callout>
+```
+**Issue**: Missing newline before the text inside the Callout component.
 
-1. **Line 23-24**: "As a brief conceptual overview, imagine a bank vault that requires multiple key holders to open it where each key holder must be present and provide their unique key before any access is granted. This is exactly how multisig (multi-signature) works in Aptos, but with digital signatures instead of physical keys."
-   - **Issue**: "This" is ambiguous.
-   - **Suggested Fix**: "As a brief conceptual overview, imagine a bank vault that requires multiple key holders to open it. Each key holder must be present and provide their unique key before any access is granted. This security model is exactly how multisig (multi-signature) works in Aptos, but with digital signatures instead of physical keys."
+### Line 53:
+```
+<Callout type="info">
+On Windows, use `python -m venv venv` instead (without the '3').
+</Callout>
+```
+**Issue**: Missing newline before the text inside the Callout component.
 
-## Platform-Specific Instructions (Should Use Tabs)
+### Line 81:
+```
+<Callout type="info">
+On Windows, use `.\venv\Scripts\activate` instead.
+```
+**Issue**: Missing newline before the text inside the Callout component.
 
-1. **Line 36-39**: Windows-specific instructions in a Callout.
-   - **Issue**: Should use Tabs component for platform-specific instructions.
-   - **Suggested Fix**:
-   ```
-   <Tabs items={["Mac/Linux", "Windows"]}>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     python3 --version
-     ```
-     </Tabs.Tab>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     python --version
-     ```
-     </Tabs.Tab>
-   </Tabs>
-   ```
+## 5. Conciseness Issues
 
-2. **Line 59-62**: Windows-specific instructions in a Callout.
-   - **Issue**: Should use Tabs component.
-   - **Suggested Fix**:
-   ```
-   <Tabs items={["Mac/Linux", "Windows"]}>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     python3 -m venv venv
-     ```
-     </Tabs.Tab>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     python -m venv venv
-     ```
-     </Tabs.Tab>
-   </Tabs>
-   ```
+### Line 35-36:
+```
+On devnet, we can easily fund them with test coins so they can cover the gas fees for transactions
+```
+**Issue**: Could be more concise by saying "On devnet, we can easily fund them with test APT".
 
-3. **Line 75-85**: Windows-specific instructions in a Callout.
-   - **Issue**: Should use Tabs component.
-   - **Suggested Fix**:
-   ```
-   <Tabs items={["Mac/Linux", "Windows"]}>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     source venv/bin/activate
-     ```
-     </Tabs.Tab>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     .\venv\Scripts\activate
-     ```
-     
-     If you get an error about scripts not being allowed to run, you can enable them with PowerShell:
-     
-     ```powershell filename="Terminal"
-     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-     ```
-     
-     Confirm by typing `[Y]` and pressing Enter, then retry the activation command.
-     </Tabs.Tab>
-   </Tabs>
-   ```
+### Line 293-295:
+```
+<Callout type="info">
+Let us know what excites you most about multisig on Aptos! Join our community channels to share your ideas and experiences.
+</Callout>
+```
+**Issue**: This callout is not providing technical information and could be removed.
 
-4. **Line 153-159**: Windows-specific instructions in a Callout.
-   - **Issue**: Should use Tabs component.
-   - **Suggested Fix**:
-   ```
-   <Tabs items={["Mac/Linux", "Windows"]}>
-     <Tabs.Tab>
-     ```bash filename="Terminal"
-     touch multisig.py
-     ```
-     </Tabs.Tab>
-     <Tabs.Tab>
-     ```powershell filename="Terminal"
-     echo "" > multisig.py
-     ```
-     </Tabs.Tab>
-   </Tabs>
-   ```
+## 6. Pronoun Ambiguity
 
-## Vague/Informal Prose
+### Line 35-36:
+```
+On devnet, we can easily fund them with test coins so they can cover the gas fees for transactions
+```
+**Issue**: The pronoun "them" is ambiguous - it refers to accounts but this isn't explicitly stated.
 
-1. **Line 593**: "Let us know what excites you most about multisig on Aptos! Join our community channels to share your ideas and experiences."
-   - **Issue**: Overly enthusiastic tone.
-   - **Suggested Fix**: "For questions about multisig on Aptos, join our community channels."
+### Line 264-265:
+```
+Like gathering two bank managers to sign a withdrawal slip - we need both signatures before the transaction can proceed.
+```
+**Issue**: The pronoun "we" is ambiguous - it could refer to the reader, the author, or the system.
+
+## 7. Out of Scope Sections
+
+### Line 293-295:
+```
+<Callout type="info">
+Let us know what excites you most about multisig on Aptos! Join our community channels to share your ideas and experiences.
+</Callout>
+```
+**Issue**: This callout is out of scope for the tutorial and doesn't provide technical information.
+
+## 8. Redundant Sections
+
+### Line 276-278:
+```
+### Going Further: Advanced Features
+
+You've completed the basics of Aptos multisig - creating a "vault" (multisig account), adding "key holders" (signers), and making a simple transfer that requires multiple approvals. But just like modern banking, there's much more we can do:
+```
+**Issue**: This section introduces advanced features but doesn't actually explain how to implement them, making it somewhat redundant.
+
+## 9. Tab Component Missing
+
+### Line 95-102:
+```
+```bash filename="Terminal"
+touch multisig.py
+```
+
+<Callout type="info">
+On Windows, use the command:
+```powershell filename="Terminal"
+echo "" > multisig.py
+```
+</Callout>
+```
+**Issue**: This should use a Tabs component for the different OS commands rather than a Callout.
+
+## 10. Informal Prose
+
+### Line 76-79:
+```
+This command:
+- Creates an isolated Python environment
+- Installs a fresh Python instance
+- Keeps project dependencies separate from your system Python
+- Creates a `venv` folder (you can view but don't modify its contents!)
+```
+**Issue**: The exclamation mark and parenthetical comment are too informal.
+
+### Line 293-295:
+```
+<Callout type="info">
+Let us know what excites you most about multisig on Aptos! Join our community channels to share your ideas and experiences.
+</Callout>
+```
+**Issue**: The exclamation mark and invitation to share experiences are too informal for a technical tutorial.
+
+## 11. Separator Issues
+
+No separator issues were found in the document.
