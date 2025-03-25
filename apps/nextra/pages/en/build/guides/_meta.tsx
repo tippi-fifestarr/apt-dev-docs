@@ -21,6 +21,9 @@ export default {
   "first-move-module": {
     title: "Your First Move Module",
   },
+  "first-dapp-wallet-adapter": {
+    title: "Your First Fullstack Dapp with Wallet Adapter",
+  },
   "first-multisig": {
     title: "Your First Multisig",
   },

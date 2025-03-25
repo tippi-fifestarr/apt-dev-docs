@@ -1,0 +1,897 @@
+---
+title: "Your First Fullstack Dapp with Wallet Adapter"
+---
+
+import { Callout, Steps } from 'nextra/components'
+
+# Your First Fullstack Dapp with Wallet Adapter
+
+As a web2 developer transitioning to web3, building your first decentralized application (dapp) can be both exciting and challenging. This tutorial will guide you through creating a fullstack dapp on the Aptos blockchain, combining a Move module for on-chain storage with a React frontend that uses the Aptos Wallet Adapter for authentication and transaction signing.
+
+You'll build a simple username registration dapp where users can:
+1. Connect their Aptos wallet
+2. Set their username on the blockchain
+3. View their stored username
+4. Sign a message to provide feedback about the tutorial
+
+By the end of this tutorial, you'll understand how to:
+
+1. Set up your development environment
+2. Create and deploy a Move module to store usernames
+3. Build a React frontend with shadcn/ui components
+4. Integrate the Aptos Wallet Adapter for wallet connections
+5. Connect your frontend to your Move module
+6. Implement message signing for feedback
+
+<Callout type="info">
+This tutorial assumes you have basic knowledge of React and TypeScript. If you're new to Move, don't worry! We'll guide you through the basics, but you can also check out the [Move Book](../smart-contracts/book) for a deeper understanding.
+</Callout>
+
+## 1. Setting Up Your Environment
+
+Before we start building our dapp, we need to set up our development environment. This includes installing the necessary tools and creating our project structure.
+
+<Steps>
+### Install the Aptos CLI
+
+The Aptos CLI is essential for interacting with the Aptos blockchain. If you haven't installed it yet, follow the instructions in the [Aptos CLI documentation](../cli).
+
+### Verify the installation
+
+Run `aptos --version` to verify you have it installed.
+
+```bash filename="Terminal"
+aptos --version
+```
+
+You should see a response like `aptos 4.6.1` or newer.
+
+### Create a project folder
+
+Create a new folder for this tutorial:
+
+```bash filename="Terminal"
+mkdir my-first-dapp
+cd my-first-dapp
+```
+
+### Initialize your Aptos account
+
+Run `aptos init` and press 'enter' for each step to create a test account on `devnet`.
+
+```bash filename="Terminal"
+aptos init
+```
+
+<Callout type="info">
+This command creates a new account on the Aptos devnet and funds it with test tokens. The account information is stored in a `.aptos/` folder in your project directory.
+</Callout>
+
+You should see a success message like:
+
+```bash filename="Terminal"
+---
+Aptos CLI is now set up for account 0x9ec1cfa30b885a5c9d595f32f3381ec16d208734913b587be9e210f60be9f9ba as profile default!
+{
+  "Result": "Success"
+}
+```
+
+### Create project structure
+
+Let's create a structure for our fullstack dapp:
+
+```bash filename="Terminal"
+mkdir -p move-module/sources
+mkdir -p frontend
+```
+
+This creates two main directories:
+- `move-module/`: Will contain our Move smart contract
+- `frontend/`: Will contain our React application
+</Steps>
+
+## 2. Creating the Username Move Module
+
+Now, let's create a simple Move module that allows users to store and retrieve their username on the blockchain.
+
+<Steps>
+### Initialize the Move project
+
+Navigate to the `move-module` directory and initialize a new Move project:
+
+```bash filename="Terminal"
+cd move-module
+aptos move init --name username_registry
+```
+
+This creates a basic Move project structure with a `Move.toml` file.
+
+### Create the module file
+
+Create a new file `sources/username.move` with the following code:
+
+```move filename="username.move"
+module username_registry::username {
+    use std::string::{String};
+    use std::signer;
+    use std::error;
+
+    /// Error codes
+    const E_USERNAME_ALREADY_REGISTERED: u64 = 1;
+
+    /// Resource that stores a username
+    struct UsernameRecord has key, store, drop {
+        username: String
+    }
+
+    /// Public function to set a username for the sender's account
+    public entry fun set_username(account: &signer, username: String) acquires UsernameRecord {
+        let account_addr = signer::address_of(account);
+        
+        // If the user already has a username, remove it first
+        if (exists<UsernameRecord>(account_addr)) {
+            move_from<UsernameRecord>(account_addr);
+        };
+        
+        // Store the new username
+        move_to(account, UsernameRecord { username });
+    }
+
+    /// Public function to get a username for a given address
+    public fun get_username(addr: address): String acquires UsernameRecord {
+        assert!(exists<UsernameRecord>(addr), error::not_found(E_USERNAME_ALREADY_REGISTERED));
+        let username_record = borrow_global<UsernameRecord>(addr);
+        username_record.username
+    }
+
+    /// Check if an address has a username
+    public fun has_username(addr: address): bool {
+        exists<UsernameRecord>(addr)
+    }
+}
+```
+
+This module defines:
+- A `UsernameRecord` resource to store a username
+- A `set_username` function to set or update a username
+- A `get_username` function to retrieve a username
+- A `has_username` function to check if an address has a username
+
+### Compile the module
+
+Compile the Move module to check for errors:
+
+```bash filename="Terminal"
+aptos move compile --named-addresses username_registry=default
+```
+
+You should see a success message if the compilation is successful.
+
+### Test the module
+
+Let's create a test file to verify our module works correctly. Create a new file `sources/username_tests.move`:
+
+```move filename="username_tests.move"
+#[test_only]
+module username_registry::username_tests {
+    use std::string;
+    use std::signer;
+    use aptos_framework::account;
+    use username_registry::username;
+
+    #[test]
+    fun test_set_and_get_username() {
+        // Set up test account
+        let test_account = account::create_account_for_test(@0x1);
+        
+        // Test username
+        let test_username = string::utf8(b"aptos_user");
+        
+        // Set username
+        username::set_username(&test_account, test_username);
+        
+        // Verify username was set correctly
+        let stored_username = username::get_username(signer::address_of(&test_account));
+        assert!(stored_username == test_username, 0);
+        
+        // Verify has_username returns true
+        assert!(username::has_username(signer::address_of(&test_account)), 1);
+    }
+    
+    #[test]
+    fun test_update_username() {
+        // Set up test account
+        let test_account = account::create_account_for_test(@0x1);
+        
+        // Set initial username
+        username::set_username(&test_account, string::utf8(b"initial_name"));
+        
+        // Update username
+        let new_username = string::utf8(b"updated_name");
+        username::set_username(&test_account, new_username);
+        
+        // Verify username was updated
+        let stored_username = username::get_username(signer::address_of(&test_account));
+        assert!(stored_username == new_username, 0);
+    }
+}
+```
+
+Run the tests:
+
+```bash filename="Terminal"
+aptos move test --named-addresses username_registry=default
+```
+
+You should see that both tests pass.
+
+### Publish the module
+
+Now, let's publish our module to the Aptos devnet:
+
+```bash filename="Terminal"
+aptos move publish --named-addresses username_registry=default
+```
+
+Confirm the transaction when prompted. You should see a success message with transaction details.
+
+### Verify the module is published
+
+You can verify your module is published by checking the [Aptos Explorer](https://explorer.aptoslabs.com/?network=devnet). Search for your account address and look under the "Modules" tab.
+
+<Callout type="info">
+Make a note of your account address as we'll need it later when connecting our frontend to this module.
+</Callout>
+</Steps>
+
+## 3. Setting Up the React Frontend
+
+Now that we have our Move module deployed, let's create a React frontend with shadcn/ui components and integrate the Aptos Wallet Adapter.
+
+<Steps>
+### Navigate to the frontend directory
+
+```bash filename="Terminal"
+cd ../frontend
+```
+
+### Initialize a new Next.js project
+
+We'll use Next.js for our frontend:
+
+```bash filename="Terminal"
+npx create-next-app@latest . --typescript --tailwind --eslint
+```
+
+Follow the prompts to set up your project. When asked about customizing the default import alias, you can choose "No" for simplicity.
+
+### Install dependencies
+
+Install the required dependencies for our dapp:
+
+```bash filename="Terminal"
+npm install @aptos-labs/wallet-adapter-react @aptos-labs/ts-sdk
+```
+
+### Set up shadcn/ui
+
+Let's set up shadcn/ui for our components:
+
+```bash filename="Terminal"
+npx shadcn-ui@latest init
+```
+
+Follow the prompts to configure shadcn/ui. You can accept the defaults for most options.
+
+### Install required shadcn/ui components
+
+```bash filename="Terminal"
+npx shadcn-ui@latest add button card input toast form
+```
+
+### Create the wallet adapter configuration
+
+Create a new file `components/wallet-provider.tsx`:
+
+```tsx filename="wallet-provider.tsx"
+'use client';
+
+import { AptosWalletAdapterProvider } from '@aptos-labs/wallet-adapter-react';
+import { PropsWithChildren } from 'react';
+import { Network } from '@aptos-labs/ts-sdk';
+
+export function WalletProvider({ children }: PropsWithChildren) {
+  return (
+    <AptosWalletAdapterProvider
+      autoConnect={true}
+      dappConfig={{ network: Network.DEVNET }}
+      onError={(error) => {
+        console.log('Wallet adapter error:', error);
+      }}
+    >
+      {children}
+    </AptosWalletAdapterProvider>
+  );
+}
+```
+
+### Update the layout to include the wallet provider
+
+Update `app/layout.tsx` to include our wallet provider:
+
+```tsx filename="layout.tsx"
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import { WalletProvider } from '@/components/wallet-provider';
+import { Toaster } from '@/components/ui/toaster';
+
+const inter = Inter({ subsets: ['latin'] });
+
+export const metadata: Metadata = {
+  title: 'Username Registry Dapp',
+  description: 'Your first fullstack dapp with Aptos Wallet Adapter',
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <WalletProvider>
+          {children}
+          <Toaster />
+        </WalletProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+### Create a wallet connection component
+
+Create a new file `components/wallet-connect.tsx`:
+
+```tsx filename="wallet-connect.tsx"
+'use client';
+
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { WalletName } from '@aptos-labs/wallet-adapter-core';
+
+export function WalletConnect() {
+  const { connect, disconnect, account, connected, wallets } = useWallet();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+  const handleConnect = async (walletName: WalletName) => {
+    try {
+      await connect(walletName);
+      setIsDropdownOpen(false);
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+    } catch (error) {
+      console.error('Failed to disconnect wallet:', error);
+    }
+  };
+
+  const formatAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+  return (
+    <div className="relative">
+      {connected && account ? (
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">
+            {formatAddress(account.address)}
+          </span>
+          <Button variant="outline" size="sm" onClick={handleDisconnect}>
+            Disconnect
+          </Button>
+        </div>
+      ) : (
+        <div>
+          <Button
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            variant="default"
+          >
+            Connect Wallet
+          </Button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+              <div className="py-1">
+                {wallets.map((wallet) => (
+                  <button
+                    key={wallet.name}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2"
+                    onClick={() => handleConnect(wallet.name)}
+                  >
+                    <img
+                      src={wallet.icon}
+                      alt={`${wallet.name} icon`}
+                      className="w-5 h-5"
+                    />
+                    {wallet.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+### Create a username form component
+
+Create a new file `components/username-form.tsx`:
+
+```tsx filename="username-form.tsx"
+'use client';
+
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Aptos, AptosConfig, Network } from '@aptos-labs/ts-sdk';
+import { useToast } from '@/components/ui/use-toast';
+
+// Replace with your module's address from the deployment step
+const MODULE_ADDRESS = 'YOUR_MODULE_ADDRESS';
+
+export function UsernameForm() {
+  const { account, connected, signAndSubmitTransaction } = useWallet();
+  const [username, setUsername] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentUsername, setCurrentUsername] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Initialize Aptos client
+  const aptosConfig = new AptosConfig({ network: Network.DEVNET });
+  const aptos = new Aptos(aptosConfig);
+
+  const handleSetUsername = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!connected || !account) {
+      toast({
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet first',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    if (!username.trim()) {
+      toast({
+        title: 'Username required',
+        description: 'Please enter a username',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    try {
+      setIsLoading(true);
+      
+      const response = await signAndSubmitTransaction({
+        sender: account.address,
+        data: {
+          function: `${MODULE_ADDRESS}::username::set_username`,
+          functionArguments: [username],
+        },
+      });
+      
+      // Wait for transaction to complete
+      await aptos.waitForTransaction({ transactionHash: response.hash });
+      
+      toast({
+        title: 'Username set successfully',
+        description: `Your username has been set to "${username}"`,
+      });
+      
+      setCurrentUsername(username);
+      setUsername('');
+    } catch (error) {
+      console.error('Error setting username:', error);
+      toast({
+        title: 'Error setting username',
+        description: 'There was an error setting your username. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchUsername = async () => {
+    if (!connected || !account) return;
+    
+    try {
+      setIsLoading(true);
+      
+      // Check if the account has a username using the view function
+      const hasUsername = await aptos.view({
+        payload: {
+          function: `${MODULE_ADDRESS}::username::has_username`,
+          functionArguments: [account.address],
+        },
+      });
+      
+      if (hasUsername[0] === true) {
+        // Get the username
+        const response = await aptos.view({
+          payload: {
+            function: `${MODULE_ADDRESS}::username::get_username`,
+            functionArguments: [account.address],
+          },
+        });
+        
+        setCurrentUsername(response[0]);
+      } else {
+        setCurrentUsername(null);
+      }
+    } catch (error) {
+      console.error('Error fetching username:', error);
+      setCurrentUsername(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch username when account changes
+  useState(() => {
+    fetchUsername();
+  }, [account, connected]);
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Set Your Username</CardTitle>
+        <CardDescription>
+          Store your username on the Aptos blockchain
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {currentUsername && (
+          <div className="mb-4 p-3 bg-green-50 rounded-md">
+            <p className="text-sm text-green-800">
+              Your current username: <strong>{currentUsername}</strong>
+            </p>
+          </div>
+        )}
+        <form onSubmit={handleSetUsername}>
+          <div className="flex flex-col space-y-4">
+            <Input
+              placeholder="Enter username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={!connected || isLoading}
+            />
+            <Button type="submit" disabled={!connected || isLoading}>
+              {isLoading ? 'Setting username...' : 'Set Username'}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+      <CardFooter className="flex justify-center">
+        <p className="text-xs text-gray-500">
+          {!connected && 'Connect your wallet to set a username'}
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+<Callout type="warning">
+Make sure to replace `YOUR_MODULE_ADDRESS` with your actual module address from the deployment step. This is the address where you published the username module.
+</Callout>
+
+### Create a feedback component with message signing
+
+Create a new file `components/feedback-form.tsx`:
+
+```tsx filename="feedback-form.tsx"
+'use client';
+
+import { useWallet } from '@aptos-labs/wallet-adapter-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/components/ui/use-toast';
+
+export function FeedbackForm() {
+  const { account, connected, signMessage } = useWallet();
+  const [isLoading, setIsLoading] = useState(false);
+  const [signedMessage, setSignedMessage] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handlePositiveFeedback = async () => {
+    await signFeedback('I enjoyed this tutorial and successfully built my first dapp!');
+  };
+
+  const handleNegativeFeedback = async () => {
+    await signFeedback('I had some issues with this tutorial and need improvements.');
+  };
+
+  const signFeedback = async (feedbackMessage: string) => {
+    if (!connected || !account) {
+      toast({
+        title: 'Wallet not connected',
+        description: 'Please connect your wallet first',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      
+      const response = await signMessage({
+        message: feedbackMessage,
+        nonce: new Date().getTime().toString(), // Use timestamp as nonce
+      });
+      
+      setSignedMessage(JSON.stringify(response, null, 2));
+      
+      toast({
+        title: 'Feedback signed',
+        description: 'Thank you for your feedback!',
+      });
+    } catch (error) {
+      console.error('Error signing feedback:', error);
+      toast({
+        title: 'Error signing feedback',
+        description: 'There was an error signing your feedback. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>Provide Feedback</CardTitle>
+        <CardDescription>
+          Sign a message with your wallet to provide feedback on this tutorial
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-col space-y-4">
+          <div className="flex space-x-4">
+            <Button 
+              onClick={handlePositiveFeedback} 
+              disabled={!connected || isLoading}
+              className="flex-1"
+              variant="default"
+            >
+              👍 I liked it!
+            </Button>
+            <Button 
+              onClick={handleNegativeFeedback} 
+              disabled={!connected || isLoading}
+              className="flex-1"
+              variant="outline"
+            >
+              👎 Needs work
+            </Button>
+          </div>
+          
+          {signedMessage && (
+            <div className="mt-4">
+              <p className="text-sm font-medium mb-2">Signed Message:</p>
+              <pre className="bg-gray-100 p-3 rounded-md text-xs overflow-auto max-h-40">
+                {signedMessage}
+              </pre>
+            </div>
+          )}
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-center">
+        <p className="text-xs text-gray-500">
+          {!connected && 'Connect your wallet to provide feedback'}
+        </p>
+      </CardFooter>
+    </Card>
+  );
+}
+```
+
+### Update the main page
+
+Update `app/page.tsx` to include our components:
+
+```tsx filename="page.tsx"
+import { WalletConnect } from '@/components/wallet-connect';
+import { UsernameForm } from '@/components/username-form';
+import { FeedbackForm } from '@/components/feedback-form';
+
+export default function Home() {
+  return (
+    <main className="min-h-screen p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Username Registry Dapp</h1>
+          <WalletConnect />
+        </div>
+        
+        <div className="mb-8">
+          <p className="text-lg mb-4">
+            Welcome to your first fullstack dapp with Aptos Wallet Adapter! This simple application demonstrates how to:
+          </p>
+          <ul className="list-disc pl-6 space-y-2">
+            <li>Connect to Aptos wallets using the Wallet Adapter</li>
+            <li>Interact with a Move module on the Aptos blockchain</li>
+            <li>Set and retrieve data from the blockchain</li>
+            <li>Sign messages with your wallet</li>
+          </ul>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+          <UsernameForm />
+          <FeedbackForm />
+        </div>
+        
+        <div className="mt-12 text-center text-sm text-gray-500">
+          <p>
+            Learn more about building on Aptos in the{' '}
+            <a 
+              href="https://aptos.dev" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-500 hover:underline"
+            >
+              Aptos Developer Documentation
+            </a>
+          </p>
+        </div>
+      </div>
+    </main>
+  );
+}
+```
+
+### Start the development server
+
+Start your React application:
+
+```bash filename="Terminal"
+npm run dev
+```
+
+Your application should now be running at `http://localhost:3000`.
+
+<Callout type="warning">
+Remember to replace `YOUR_MODULE_ADDRESS` in the `username-form.tsx` file with your actual module address from the deployment step.
+</Callout>
+</Steps>
+
+## 4. Testing Your Dapp
+
+Now that we have built both our Move module and React frontend, let's test the complete dapp.
+
+<Steps>
+### Install a wallet extension
+
+If you haven't already, install an Aptos wallet browser extension like [Petra](https://petra.app/) or [Martian](https://martianwallet.xyz/).
+
+### Connect your wallet
+
+1. Open your dapp at `http://localhost:3000`
+2. Click the "Connect Wallet" button
+3. Select your wallet from the dropdown
+4. Approve the connection in your wallet extension
+
+### Set your username
+
+1. Enter a username in the input field
+2. Click "Set Username"
+3. Approve the transaction in your wallet extension
+4. Wait for the transaction to complete
+5. Your current username should be displayed
+
+### Provide feedback
+
+1. Click either "I liked it!" or "Needs work" in the feedback section
+2. Approve the message signing in your wallet extension
+3. The signed message should be displayed
+</Steps>
+
+## 5. Understanding the Code
+
+Let's break down the key components of our dapp:
+
+### Move Module
+
+Our `username.move` module provides three main functions:
+
+1. `set_username`: Allows a user to set or update their username
+2. `get_username`: Retrieves a username for a given address
+3. `has_username`: Checks if an address has a username
+
+The module uses a `UsernameRecord` resource to store the username data, which is tied to the user's account.
+
+### Wallet Adapter Integration
+
+The wallet adapter integration consists of:
+
+1. `WalletProvider`: Sets up the Aptos Wallet Adapter context
+2. `WalletConnect`: Provides UI for connecting and disconnecting wallets
+3. `useWallet` hook: Gives access to wallet functions like `signAndSubmitTransaction` and `signMessage`
+
+### Transaction Flow
+
+When a user sets their username:
+
+1. The frontend calls `signAndSubmitTransaction` with the module function and arguments
+2. The wallet prompts the user to approve the transaction
+3. The transaction is submitted to the blockchain
+4. The frontend waits for the transaction to complete
+5. The UI is updated to show the new username
+
+### Message Signing
+
+The feedback feature demonstrates message signing:
+
+1. The user clicks a feedback button
+2. The frontend calls `signMessage` with the feedback message
+3. The wallet prompts the user to sign the message
+4. The signed message is displayed in the UI
+
+## Next Steps
+
+Congratulations! You've successfully built a fullstack dapp with the Aptos Wallet Adapter. Here are some ways you could extend this project:
+
+1. **Add more features to the Move module**:
+   - Allow users to set a profile picture or bio
+   - Implement a social following system
+   - Create a reputation or points system
+
+2. **Enhance the frontend**:
+   - Add a user search feature
+   - Implement a profile page
+   - Add animations and improved UI
+
+3. **Explore more wallet adapter features**:
+   - Implement multi-signature transactions
+   - Add support for different networks
+   - Explore more advanced transaction types
+
+4. **Learn more about Move development**:
+   - Check out the [Move Book](../smart-contracts/book) for a deeper understanding
+   - Explore the [Aptos Framework](https://github.com/aptos-labs/aptos-core/tree/main/aptos-move/framework) for more examples
+
+5. **Connect with the Aptos community**:
+   - Join the [Aptos Discord](https://discord.gg/aptoslabs)
+   - Participate in hackathons and events
+   - Share your projects with the community
+
+## Resources
+
+- [Aptos Developer Documentation](https://aptos.dev)
+- [Wallet Adapter Documentation](../sdks/wallet-adapter/dapp)
+- [Move Book](../smart-contracts/book)
+- [Aptos TypeScript SDK](../sdks/ts-sdk)
+- [shadcn/ui Documentation](https://ui.shadcn.com)
+
+<Callout type="info">
+We'd love to hear your feedback on this tutorial! If you have any questions or suggestions, please reach out on the [Aptos Discord](https://discord.gg/aptoslabs).
+</Callout>
