@@ -21,9 +21,13 @@ This tutorial will help you understand Move Modules by guiding you through setti
 This tutorial is not meant to teach you the fundamentals of Move. That is a longer topic best learned through the [Move Book](../smart-contracts/book).
 </Callout>
 
-## 1. Setup
+## Setup
 
 Changes to the blockchain are called “transactions”, and they require an account to pay the network fee (”gas fee”). We will need to create an account with some APT to pay that fee and own the published contract. In order to do that, we will need to use the Aptos CLI.
+
+<Callout type="info">
+The Aptos CLI is also required for compiling, testing, and publishing Move modules.
+</Callout>
 
 <Steps>
 ### Install the Aptos CLI
@@ -87,7 +91,7 @@ You can view hidden files with `ls -a` in Unix/Mac terminal or `dir /ah` in Wind
 </Callout>
 </Steps>
 
-## 2. (Optional) Explore What You Just Did On-Chain
+## Explore Your Newly Funded Account On-Chain
 
 <Steps>
 ### Copy your account address
@@ -139,7 +143,7 @@ The explorer is an important tool to see the contracts we are deploying, and als
 </Callout>
 </Steps>
 
-## 3. Writing and Compiling Your First Module
+## Writing and Compiling Your First Module
 
 Now that we have our environment set up and an account created, let's write and compile our first Move module. Unlike Ethereum where contracts exist independently, Move ties everything to accounts - both modules and their resources. Let's start with a simple example to understand the core concepts.
 
@@ -172,48 +176,51 @@ This creates a project structure with a `sources` directory and a `Move.toml` fi
 
 ### Create the module file
 
-Create a new file `sources/message.move` with our module code:
+Create a new file `sources/message.move` with our module code.
+
+This module stores a message on-chain in a resource, then retrieves it whenever someone calls `get_message`.
 
 ```move filename="message.move"
 module my_first_module::message {
     use std::string;
     use std::signer;
 
+    // A resource that stores a string message under a user's account
     struct MessageHolder has key, store, drop {
         message: string::String,
     }
 
+    // Allows an account to store a message in their account storage
+    // The 'acquires' keyword indicates this function accesses the MessageHolder resource
     public entry fun set_message(account: &signer, message: string::String) acquires MessageHolder {
         let account_addr = signer::address_of(account);
 
+        // If a message already exists, remove it first
         if (exists<MessageHolder>(account_addr)) {
             move_from<MessageHolder>(account_addr);
         };
 
+        // Store the new message under the user's account
+        // 'move_to' is a critical operation that places resources in account storage
         move_to(account, MessageHolder { message });
     }
 
+    // Retrieves a message stored in an account's storage
     public fun get_message(account_addr: address): string::String acquires MessageHolder {
+        // Make sure the message exists
         assert!(exists<MessageHolder>(account_addr), 0);
+        // Borrow a reference to the stored message
         let message_holder = borrow_global<MessageHolder>(account_addr);
         message_holder.message
     }
 }
 ```
 
-Let's break down this module:
-
-- We define a `MessageHolder` resource type that can store a string message
-- `set_message` allows an account to store a message
-- `get_message` allows anyone to retrieve a stored message
-- The `acquires` keyword indicates which resources the functions need access to (MessageHolder, in this case)
-- `move_to` and `move_from` handle the storage of resources under accounts
-
 <Callout type="info">
 Move has some unique characteristics that make it different from other smart contract languages:
 
 1. Resource types are used to represent assets and state that can only exist in one place at a time
-2. Ability modifiers like `key`, `store`, and `drop` control how values can be used
+2. [Ability modifiers](../smart-contracts/book/abilities) like `key`, `store`, and `drop` control how values can be used
 3. Explicit acquire annotations tell us which resources a function might access
 </Callout>
 
