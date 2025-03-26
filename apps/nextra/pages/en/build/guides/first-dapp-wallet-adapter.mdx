@@ -271,24 +271,36 @@ Follow the prompts to set up your project. When asked about customizing the defa
 Install the required dependencies for our dapp:
 
 ```bash filename="Terminal"
-npm install @aptos-labs/wallet-adapter-react @aptos-labs/ts-sdk
+npm install @aptos-labs/wallet-adapter-react @aptos-labs/ts-sdk --legacy-peer-deps
 ```
+
+<Callout type="warning">
+We're using the `--legacy-peer-deps` flag because the wallet adapter currently requires React 18, but the latest Next.js (as of this writing) uses React 19. This flag allows us to install the package despite the version mismatch.
+
+Alternatively, you could create your Next.js project with a specific React version:
+```bash
+npx create-next-app@latest . --typescript --tailwind --eslint --use-npm
+```
+And then when prompted, manually install React 18 instead of the default React 19.
+</Callout>
 
 ### Set up shadcn/ui
 
 Let's set up shadcn/ui for our components:
 
 ```bash filename="Terminal"
-npx shadcn-ui@latest init
+npx shadcn@latest init --yes
 ```
 
-Follow the prompts to configure shadcn/ui. You can accept the defaults for most options.
+This will initialize shadcn/ui with default options. If you encounter any compatibility issues, you may need to add the `--legacy-peer-deps` flag here as well.
 
 ### Install required shadcn/ui components
 
 ```bash filename="Terminal"
-npx shadcn-ui@latest add button card input toast form
+npx shadcn@latest add button card input sonner form --yes
 ```
+
+The `--yes` flag will use the default options for each component. We're using the sonner component for notifications, which is the recommended approach in shadcn/ui.
 
 ### Create the wallet adapter configuration
 
@@ -318,20 +330,28 @@ export function WalletProvider({ children }: PropsWithChildren) {
 
 ### Update the layout to include the wallet provider
 
-Update `app/layout.tsx` to include our wallet provider:
+Update `app/layout.tsx` to include our wallet provider. You'll need to modify the existing layout file to wrap the children with the WalletProvider and add the Toaster component:
 
 ```tsx filename="layout.tsx"
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
 import { WalletProvider } from '@/components/wallet-provider';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from 'sonner';
 
-const inter = Inter({ subsets: ['latin'] });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'Username Registry Dapp',
-  description: 'Your first fullstack dapp with Aptos Wallet Adapter',
+  title: "Username Registry Dapp",
+  description: "Your first fullstack dapp with Aptos Wallet Adapter",
 };
 
 export default function RootLayout({
@@ -341,7 +361,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         <WalletProvider>
           {children}
           <Toaster />
@@ -351,6 +373,12 @@ export default function RootLayout({
   );
 }
 ```
+
+The key changes are:
+1. Importing the `WalletProvider` and `Toaster` components
+2. Updating the title and description
+3. Wrapping the `children` with the `WalletProvider`
+4. Adding the `Toaster` component for notifications
 
 ### Create a wallet connection component
 
@@ -362,13 +390,12 @@ Create a new file `components/wallet-connect.tsx`:
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { WalletName } from '@aptos-labs/wallet-adapter-core';
 
 export function WalletConnect() {
   const { connect, disconnect, account, connected, wallets } = useWallet();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const handleConnect = async (walletName: WalletName) => {
+  const handleConnect = async (walletName: string) => {
     try {
       await connect(walletName);
       setIsDropdownOpen(false);
@@ -444,12 +471,12 @@ Create a new file `components/username-form.tsx`:
 'use client';
 
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Aptos, AptosConfig, Network } from '@aptos-labs/ts-sdk';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 // Replace with your module's address from the deployment step
 const MODULE_ADDRESS = 'YOUR_MODULE_ADDRESS';
@@ -459,7 +486,6 @@ export function UsernameForm() {
   const [username, setUsername] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentUsername, setCurrentUsername] = useState<string | null>(null);
-  const { toast } = useToast();
 
   // Initialize Aptos client
   const aptosConfig = new AptosConfig({ network: Network.DEVNET });
@@ -529,7 +555,7 @@ export function UsernameForm() {
       const hasUsername = await aptos.view({
         payload: {
           function: `${MODULE_ADDRESS}::username::has_username`,
-          functionArguments: [account.address],
+          functionArguments: [account.address.toString()],
         },
       });
       
@@ -538,7 +564,7 @@ export function UsernameForm() {
         const response = await aptos.view({
           payload: {
             function: `${MODULE_ADDRESS}::username::get_username`,
-            functionArguments: [account.address],
+            functionArguments: [account.address.toString()],
           },
         });
         
@@ -555,7 +581,8 @@ export function UsernameForm() {
   };
 
   // Fetch username when account changes
-  useState(() => {
+  // Note: We should use useEffect here, not useState
+  useEffect(() => {
     fetchUsername();
   }, [account, connected]);
 
@@ -611,16 +638,15 @@ Create a new file `components/feedback-form.tsx`:
 'use client';
 
 import { useWallet } from '@aptos-labs/wallet-adapter-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 export function FeedbackForm() {
   const { account, connected, signMessage } = useWallet();
   const [isLoading, setIsLoading] = useState(false);
   const [signedMessage, setSignedMessage] = useState<string | null>(null);
-  const { toast } = useToast();
 
   const handlePositiveFeedback = async () => {
     await signFeedback('I enjoyed this tutorial and successfully built my first dapp!');
