@@ -8,4 +8,5 @@ export default {
   "create-aptos-dapp": "create-aptos-dapp",
   guides: "Guides",
   aips: "Aptos Improvement Proposals (AIPs)",
+  comparison: "Comparison",
 };

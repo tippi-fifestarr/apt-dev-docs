@@ -1,0 +1,226 @@
+---
+title: "Comparison"
+---
+
+# TL;DR
+
+1. The Aptos blockchain is fast, cheap, and stable. We want to make it clear that we're building for scalable applications
+2. Aptos smart contracts catch more exploits at compile, runtime, and through verification for critical logic.
+3. Building with Aptos comes with all the tools to spin up a dapp prototype in less than 10 minutes without needing to spin up your own infrastructure or re-invent dapp UIs.
+4. Aptos is improving over time. It's built to update on-chain logic, there are constantly new community tools to improve dapp building, and the contract language is becoming more robust.
+5. The tokens and assets on-chain are easy to trade and manage through exchanges, bridges, and robust integrations with many finance apps.
+
+# On-Chain Performance
+
+## Less Than 1 Second to Finality
+
+### Learning objective: Understand why Aptos feels instant to end-users
+
+- Consensus, execution, storage overlap; no global "stop-the-world" step.
+- Mainnet finality about one second; worst-case less than 3 seconds in public tests.
+- Predictable fees because blocks never pile up in a mempool queue.
+
+## Aptos Scales (So Fees Don't Rise)
+
+### Learning objective: Explain how Aptos grows with hardware *and* design headroom
+
+- **Block-STM** auto-detects non-conflicts → peaks of *fourteen thousand three hundred and forty TPS* and *fifty-one point six million transactions in one day* without fee spikes (&lt;$0.002/tx).
+- More cores = more threads today; roadmap adds homogeneous state sharding tomorrow.
+- No external L2s needed → simpler UX and fewer bridge trust assumptions.
+
+## Stable Under Stress
+
+### Learning objective: Articulate why throughput remains stable during traffic spikes
+
+- Parallelism defuses fee auctions even during viral events (e.g., *Tapos 2* surge).
+- If validators crash, multi-proposer BFT rotates leaders automatically—no halt, no reorg.
+- Historical highs (May 25, 2024: 115 million transactions) show throughput holds up in the wild.
+
+# Security Model
+
+## Compile-Time Safety (before you lose your money)
+
+### Learning objective: Show how resource-oriented programming (Move Language Safety) prevents whole classes of exploits
+
+- Resource-oriented assets can't be cloned or dropped; no re-entrancy or overflow.
+- Strong static typing and bytecode verifier gate bad code.
+- Same model now adopted by multiple chains—Move's safety is industry-validated.
+
+## Runtime Guardrails
+
+### Learning objective: Highlight Aptos's "paranoid mode" and Defense-in-Depth runtime guards
+
+- "Paranoid mode" re-checks type/resource safety on every call.
+- Optional strict mode for high-value contracts (extra runtime audits).
+- Joint audits + one million dollar bounty program caught critical bugs pre-mainnet.
+
+## Provably Safe Contracts via Formal Verification
+
+### Learning objective: Position Move Prover as everyday developer linting, not ivory-tower math
+
+- Developers specify invariants ("total_supply never changes"); **Move Prover** enforces automatically by turning them into machine proofs.
+- Core framework modules fully proven + audited by 3+ external firms pre-mainnet
+- Prover runs inside CI like a lint step—no PhD required.
+
+# Developer Experience
+
+## First-Class Tooling Stack
+
+### Learning objective: Outline what devs get day 1
+
+- Aptos CLI for localnet, devnet, testnet, faucet, key-mgmt, compiling, publishing, and interacting with contracts
+- VS Code & JetBrains plugins with Move syntax + inline Prover feedback
+- Typescript/Rust/Python SDKs auto-generated from on-chain ABI
+
+## Rapid Iteration & In-Place Upgrades
+
+### Learning objective: Show how you "fix the plane while flying"
+
+- Module address stays constant across versions; downstream calls keep working
+- No proxy patterns; upgrade approved via on-chain governance or maintainer key
+- "Fix-the-plane-while-flying" flow matches Web2 continuous delivery
+
+## AI-Ready Documentation & Chatbot
+
+### Learning objective: Emphasize AI assist during build/learn cycles
+
+- Docs structured for chunkable LLM consumption—clear headers, low ambiguity; LLMs-txt.
+- Aptos Chatbot (in development) surfaces code snippets, CLI commands, API keys, on demand. Aptos Learn Vibe Coder prompts can walk a complete beginner through writing, compiling, and publishing their first smart contract on Aptos.
+- Cutting edge MCP abilities to speed up your development workflow
+
+## Onboarding meets you where you are
+
+### Learning objective: Reduce switching cost for Solidity/Solana devs
+
+- Ethereum-to-Aptos / Solana-to-Aptos cheatsheets and Aptos Learn Workshops map concepts 1-to-1
+- Starter templates (Create Aptos Dapp) for wallets, NFTs, DeFi primitives in Move + React
+- AI chatbot reminder, and Aptos Vibes showcase
+
+# Upgradeability & Modular Design
+
+## On-Chain Governance for Core Logic
+
+### Learning objective: Explain how protocol evolves without forks
+
+- Accounts, the APT coin, staking, and other system modules live as Move packages at `0x1`; updates are published through on-chain [governance proposals](https://github.com/aptos-foundation/mainnet-proposals), so validators vote the new code in—no hard fork or node reinstall needed.
+- The `0x1::gas_schedule` table and feature-flag resource are also on chain; a single gas/feature proposal can lower fees or enable new VM op-codes, and changes propagate within the next epoch (≈ 4 h).
+- Governance has already executed **100 +** framework or gas-table proposals—see the live list on [GovScan](https://govscan.live/aptos/proposals)—all applied without halting block production, demonstrating true zero-downtime upgrades.
+
+## Hot-Swappable VM & Consensus Layers
+
+### Learning objective: Reassure that today's dApps survive tomorrow's improvements
+
+- VM versioning guarantees backward compatibility; old bytecode still executes
+- Research-driven consensus upgrades (e.g., faster QC) can roll out with zero downtime like software patches
+- Testing gates (devnet → testnet → mainnet) catch regressions early.
+
+## Future-Proof Scaling Modules
+
+### Learning objective: Describe path to internal sharding & zk-features
+
+- Experimental homogeneous state shards are already coded behind a *feature gate*; once performance testing is complete, validators can vote to flip the switch and spread state across multiple shards without extra operator complexity—see the "internal sharding of a validator and **homogeneous state sharding**" note in the [Aptos White Paper](https://aptos.dev/en/network/blockchain/aptos-white-paper).
+- *Aptos Confidential Transactions* (ACTs) are live on Devnet today, giving builders a plug-and-play way to hide balances and transfer amounts with zero-knowledge proofs; details and API snippets are in the launch post "[Confidential Transactions now live on Aptos Devnet.](https://forum.aptosfoundation.org/t/confidential-transactions-now-live-on-aptos-devnet/16355)" (June 2025)
+- The roadmap explicitly reserves VM op-code slots for alternative signature schemes (e.g., BLS, PQC) and the core team is already researching post-quantum options, as called out by co-founder Avery Ching in May 2025—see "[Aptos prepares for post-quantum security.](https://blockchain.news/flashnews/aptos-prepares-for-post-quantum-security-crypto-resilience-and-future-proofing-highlighted-by-alinush407)"
+
+# Ecosystem Readiness
+
+## Wallet & Account Abstraction Landscape
+
+### Learning objective: Demonstrate user-friendly entry points
+
+- Petra, Martian, Pontem wallets support social recovery & human names (`.apt`)
+- Sponsored transactions let dApps pay gas—user sees "sign, done" UX
+    - Native support (see docs page)
+    - Aptos Build Gas Station
+
+## Bridges & Liquidity
+
+### Learning objective: Prove asset mobility into/out of Aptos
+
+- **Wormhole** and **LayerZero** bridges are both live on Aptos; Wormhole's partners also launched a [$50 M cross-chain ecosystem fund](https://www.businesswire.com/news/home/20230518005218/en/Leading-Crypto-Teams-and-Institutional-Investors-Team-Up-to-Launch-a-50M-Cross-Chain-Ecosystem-Fund-Powered-by-Wormhole) to seed early liquidity and dApps.
+- **Native USDC** (Oct 2024) and **native USDT** (Oct 2024) are already minted on Aptos, and both trade on major CEX spot pairs—see Circle's announcement "[Native USDC on Aptos](https://www.circle.com/blog/now-available-native-usdc-on-aptos)" and the Aptos Foundation note "[USDT on the Move](https://aptosfoundation.org/currents/usdt-on-the-move-tether-aptos-integration)."
+- The Wormhole codebase that services Aptos has been audited by both [Halborn](https://aptosfoundation.org/ecosystem/project/halborn) and [Kudelski Security](https://github.com/wormhole-foundation/wormhole-audits/blob/main/2022-08-16_kudelski.pdf); since Aptos mainnet launched in 2022 there have been **no Aptos-specific bridge exploits reported**.
+
+## Live dApps & Network Metrics
+
+### Learning objective: Validate real adoption, not test-lab claims
+
+- Top DEX processes ~30 k swaps/day at &lt;$0.002 fee each.
+- Monthly active accounts: **11 million**; daily active: **about 1 million** (June 2025) — [Explorer Analytics](https://explorer.aptoslabs.com/analytics?network=mainnet).
+- Two record peaks: *115 million transactions (May 25, 2024)* and *51.6 million transactions (Aug 13, 2024)* with no fee surge.
+
+## Data & Analytics Tooling
+
+### Learning objective: Show transparency for builders and analysts
+
+- [Data Providers](https://aptos.dev/en/build/apis/data-providers): GraphQL indexer + REST API expose full block/event tables.
+- API returns full transaction object graph—easy for BI tools / AI agents
+- "Data Analyst Guide" series ([Pt 1](https://medium.com/aptoslabs/data-analyst-guide-to-aptos-pt-1-816367edc1c5), [Pt 2](https://medium.com/aptoslabs/data-analyst-guide-to-aptos-defi-swaps-pt2-e343ac6be84e), [Pt 3](https://medium.com/@aptoslabs/data-analyst-guide-to-aptos-supply-and-volume-pt-3-535e312946ad)) walks through SQL for validator sets, swaps, and supply.
+
+# When to Choose Aptos
+
+## High-Frequency, Low-Latency Workloads
+
+### Learning objective: Map performance to real use cases
+
+- Real-time games, order-book DEXs, social feeds needing sub-second writes.
+- Built-in parallelism keeps UX smooth even at peak TPS.
+- No extra infra layers to maintain.
+
+## Security-Critical Assets
+
+### Learning objective: Position Move as safest default for value storage
+
+- Formal verification + runtime guards suit regulated or custodial assets.
+- Institutions avoid proxy-layers common on other chains.
+- Safety story resonates with fintech auditors.
+
+## Rapidly-Evolving Products
+
+### Learning objective: Convey upgradeability advantage
+
+- Are you shipping weekly? Upgrade modules in place; users keep same addresses.
+- No forced migrations or proxy rewiring.
+- Governance can toggle new features on demand.
+
+## Seamless Onboarding for Non-Crypto Users
+
+### Learning objective: Highlight account abstraction & sponsored gas
+
+- Email / OAuth logins via Aptos Connect; seed phrase optional.
+- Sponsored gas lets first-time users transact with zero balance.
+- UX parity with Web2 apps → lower bounce rates.
+
+# Glossary
+
+## Block-STM
+
+### Parallel execution engine that schedules non-conflicting transactions simultaneously
+
+## AptosBFT
+
+### Variant of HotStuff consensus with pipelined voting and rotating leaders for liveness
+
+## Move
+
+### Resource-oriented smart-contract language ensuring asset safety and type soundness
+
+## TPS (Transactions Per Second)
+
+### Metric for throughput; Aptos targets 160k+ TPS under lab conditions
+
+## VM (Virtual Machine)
+
+### Runtime executing Move bytecode; upgradeable without contract redeploy
+
+## ABI (Application Binary Interface)
+
+### Describes callable functions/resources; used to auto-generate SDK clients
+
+## ANS (Aptos Name Service)
+
+### Maps human-readable names to 256-bit account addresses
+
+## APT
+
+### Native coin powering gas fees, governance, and staking on Aptos 
