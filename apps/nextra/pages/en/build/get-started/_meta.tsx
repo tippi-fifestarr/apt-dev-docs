@@ -6,6 +6,9 @@ export default {
       layout: "full",
     },
   },
+  comparison: {
+    title: "Comparison",
+  },
   "ethereum-cheatsheet": {
     title: "Ethereum to Aptos Cheatsheet",
   },

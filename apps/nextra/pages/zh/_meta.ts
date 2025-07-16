@@ -36,9 +36,6 @@ export default {
       guides: {
         title: "指南",
       },
-      comparison: {
-        title: "对比",
-      },
     },
   },
   network: {

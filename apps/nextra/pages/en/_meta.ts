@@ -36,9 +36,6 @@ export default {
       guides: {
         title: "Guides",
       },
-      comparison: {
-        title: "Comparison",
-      },
     },
   },
   network: {

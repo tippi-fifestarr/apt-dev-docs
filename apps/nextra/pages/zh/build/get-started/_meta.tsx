@@ -6,6 +6,9 @@ export default {
       layout: "full",
     },
   },
+  comparison: {
+    title: "Comparison | 对比",
+  },
   "ethereum-cheatsheet": {
     title: "Ethereum to Aptos Cheatsheet | 以太坊到 Aptos 速查表",
   },

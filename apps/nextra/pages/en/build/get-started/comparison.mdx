@@ -1,0 +1,286 @@
+---
+title: "Comparison"
+---
+
+# TL;DR
+
+1. The Aptos blockchain is fast, cheap, and stable. We want to make it clear that we're building for scalable applications
+2. Aptos smart contracts catch more exploits at compile, runtime, and through verification for critical logic.
+3. Building with Aptos comes with all the tools to spin up a dapp prototype in less than 10 minutes without needing to spin up your own infrastructure or re-invent dapp UIs.
+4. Aptos is improving over time. It's built to update on-chain logic, there are constantly new community tools to improve dapp building, and the contract language is becoming more robust.
+5. The tokens and assets on-chain are easy to trade and manage through exchanges, bridges, and robust integrations with many finance apps.
+
+# On-Chain Performance
+
+## Why is Aptos faster than traditional blockchains? (< 1 Second to Finality)
+
+[Aptos is now recognized for achieving industry-leading 130ms block times and user finality at 650ms](https://blockchain.news/flashnews/aptos-sets-industry-record-with-130ms-block-times-and-650ms-finality-implications-for-crypto-traders), making it one of the fastest blockchains in the market today. This sub-second finality means that by the time your browser refreshes, your transaction is already confirmed and visible on-chain—a dramatic improvement compared to other blockchains where users often wait minutes for confirmation.
+
+The secret behind this lightning-fast performance lies in Aptos's innovative architecture. Unlike traditional blockchains that process transactions sequentially in distinct phases, [Aptos blocks close within 250ms](../../network/blockchain/execution.mdx) as of December 2024. The network achieves this through overlapping consensus, execution, and storage stages that run continuously in a pipeline, eliminating the "stop-the-world" bottlenecks that plague other chains.
+
+Compared to other blockchains, Aptos delivers a seamless user experience even under high network load. The [Aptos testnet can manage 160,000 transactions processed simultaneously, with less than 1 second time-to-finality](https://pixelplex.io/blog/aptos-blockchain/), ensuring your dApps feel as responsive as traditional web applications.
+
+- **No global synchronization pauses:** Aptos's pipelined architecture means validators never wait for one stage to complete before starting the next
+- **Predictable low fees:** [This portion of gas is burned permanently upon the execution of a transaction](../../network/blockchain/gas-txn-fee.mdx), with fees remaining stable even during high-traffic periods
+- **Consistent performance:** Even during the [115.4 million transactions processed on May 25th, gas costs averaged 0.000001 APT](https://aptosfoundation.org/currents/may-wrapped-aptos-highlights-2024)
+
+> **For developers:** Sub-second finality transforms what's possible in Web3. Build real-time games, responsive DEXs, and interactive social apps that users will actually enjoy using—no more "waiting for confirmation" screens.
+
+## How does Aptos handle millions of transactions without fee spikes? (Aptos Scales)
+
+[Block-STM is a highly efficient, multi-threaded, in-memory parallel execution engine that can execute over 160k non-trivial Move transactions per second](https://medium.com/aptoslabs/block-stm-how-we-execute-over-160k-transactions-per-second-on-the-aptos-blockchain-3b003657e4ba). This innovative technology automatically detects which transactions can run in parallel, processing them simultaneously across multiple CPU cores while maintaining the exact same final state as if they were executed sequentially.
+
+During real-world stress tests, Aptos has demonstrated remarkable resilience. The network achieved [115.4 million transactions in a single day on May 25, 2024, with peak TPS reaching 32,000](https://cointelegraph.com/news/aptos-sets-new-record-for-daily-transactions-with-115-million-txs), surpassing Solana's 31.7 million transactions by a significant margin. Even more impressive, [Aptos successfully processed an unprecedented 2.1 billion peer-to-peer payment transactions within 24 hours](https://aptoslabs.medium.com/previewnet-ensuring-scalability-and-reliability-of-the-aptos-network-48f0d210e8fe) during previewnet testing.
+
+Compared to other blockchains that experience dramatic fee spikes during popular NFT mints or DeFi events, Aptos maintains consistent low fees through its parallel execution model. This means your users won't face the dreaded "gas wars" that make other chains unusable during peak times.
+
+- **Hardware scalability:** [Aptos achieved a remarkable milestone of 1 million TPS using 30 shards](https://medium.com/aptoslabs/shardines-aptos-sharded-execution-engine-blazes-to-1m-tps-71c5f9b8bf60) with horizontal scaling
+- **No L2 complexity:** Unlike chains that rely on complex Layer 2 solutions, Aptos scales natively on Layer 1
+- **Future-proof design:** [The roadmap explicitly reserves VM op-code slots for alternative signature schemes](../../network/blockchain/aptos-white-paper.mdx) and state sharding
+
+> **Real-world impact:** When the Tapos Cat game launched, driving millions of transactions, fees stayed under $0.002 while other chains would have seen 100x fee increases.
+
+## What keeps Aptos running smoothly during viral events? (Stable Under Stress)
+
+The true test of any blockchain comes during unexpected viral moments. [When Tapos Cat launched on Aptos mainnet, it brought about 10 million transactions on its first day alone](https://cointelegraph.com/news/aptos-sets-new-record-for-daily-transactions-with-115-million-txs), yet the network maintained stable operations with consistent gas fees and success rates throughout the surge.
+
+Aptos's stability stems from its sophisticated consensus mechanism and parallel execution engine working in harmony. Block-STM uses Software Transactional Memory techniques with a novel collaborative schedule to handle conflicting transactions gracefully. When transactions do conflict, the system automatically retries them rather than failing entirely, ensuring smooth operation even under extreme load.
+
+Compared to other blockchains that have experienced outages or severe degradation during high-traffic events, Aptos has maintained consistent uptime. The [network achieved its highest-ever daily transaction volume with 115.4 million transactions while maintaining peak transaction per second of 32,000 TPS](https://messari.io/report/state-of-aptos-q2-2024) without any service interruption.
+
+- **Automatic leader rotation:** If validators experience issues, AptosBFT consensus automatically rotates to healthy nodes
+- **Conflict resolution:** Block-STM's optimistic concurrency control handles transaction conflicts without blocking
+- **Battle-tested performance:** Transactions peaked May 23-26 with 156 million on May 25 with no degradation
+
+> **Developer confidence:** Build ambitious applications knowing the infrastructure won't let you down when you go viral.
+
+## Mini-FAQ: Performance
+
+**Q: How does Aptos compare to Ethereum's transaction speed?**
+A: While Ethereum processes around 12-15 TPS with minutes to finality, Aptos achieves 650ms finality with the capacity for over 160,000 TPS.
+
+**Q: What happens to fees during network congestion?**
+A: Unlike other chains, [even with 115.4 million daily transactions, fee rates remained low](https://aptosfoundation.org/currents/may-wrapped-aptos-highlights-2024) due to parallel execution preventing bottlenecks.
+
+**Q: Is the high TPS just theoretical?**
+A: No, Aptos processed 115.4 million real transactions in a single day on mainnet, not just in testing environments.
+
+# Security Model
+
+## How does Move prevent common smart contract exploits? (Compile-Time Safety)
+
+The Move programming language fundamentally reimagines smart contract security through its resource-oriented design. [Move features a robust linear type system that guarantees specific access and modification patterns for data structures within a Move program](https://move-developers-dao.gitbook.io/aptos-move-by-example/why-is-move-secure). This isn't just another programming language—it's a paradigm shift that makes entire categories of exploits mathematically impossible.
+
+[Move introduces a novel programming paradigm known as resource-oriented programming, providing the blockchain domain-specific primitives developers need to develop secure contracts](https://blog.movementlabs.xyz/article/move-best-language-smart-contracts-blockchain-development). Resources in Move cannot be copied or accidentally destroyed, only moved between owners. This simple rule eliminates double-spending attacks, reentrancy vulnerabilities, and the countless "oops, I lost millions" incidents that plague other blockchains.
+
+Compared to other blockchain languages like Solidity, which have "re-invented all of the vulnerabilities that were wiped out of languages decades ago" according to security experts, Move was designed with formal verification in mind from the beginning. The compiler catches dangerous patterns before code ever reaches the blockchain.
+
+- **Type system enforcement:** [Additions and multiplications cause the program to abort if the result is too large for the integer type](../smart-contracts/move-security-guidelines.mdx)
+- **Resource safety:** Assets can only exist in one place at a time, preventing duplication exploits
+- **Memory safety:** Borrowing rules inspired by Rust eliminate use-after-free and similar vulnerabilities
+
+> **Security by default:** With Move, the "happy path" is the secure path. You have to work hard to write vulnerable code, not the other way around.
+
+## What extra protections does Aptos add at runtime? (Runtime Guardrails)
+
+Even with Move's compile-time safety, Aptos adds multiple layers of runtime protection. [We added a so-called paranoid mode to the Move VM, which enforces type safety and the other rules mentioned above at execution time](https://medium.com/aptoslabs/securing-move-f81099f5e08c). This belt-and-suspenders approach means that even if a bug somehow made it past the compiler, the runtime would catch it before any damage occurs.
+
+The Aptos team takes security so seriously that [Aptos Labs contracted Certik and Halborn for auditing the Move Virtual machine. Multiple critical issues were found, one of them in the category of type safety](https://medium.com/aptoslabs/securing-move-f81099f5e08c)—all fixed before mainnet launch. Additionally, Aptos Labs runs a bug bounty program with bounties of up to $1,000,000 for critical bugs that could lead to loss of assets.
+
+Compared to other blockchains that rely solely on pre-deployment audits, Aptos's paranoid mode provides continuous runtime verification. This means security checks happen every single time code executes, not just during deployment.
+
+- **Defense in depth:** Multiple independent security layers catch different types of vulnerabilities
+- **Community auditing:** Engineers from Mysten Labs, Starcoin, and auditing companies like MoveBit and OtterSec teamed up with Aptos engineers
+- **Continuous improvement:** The bug bounty program ensures ongoing security research and fixes
+
+> **Peace of mind:** Deploy knowing that multiple safety nets protect your users' assets, even from unknown vulnerabilities.
+
+## How can developers mathematically prove their code is safe? (Provably Safe Contracts via Formal Verification)
+
+[The Move Prover is a formal verification tool for smart contracts that are written in the Move language](https://medium.com/aptoslabs/securing-the-aptos-framework-through-formal-verification-14124d1ed660), transforming security from "probably safe" to "mathematically proven safe." Unlike traditional testing that only checks specific scenarios, formal verification proves your code works correctly for all possible inputs and states—forever.
+
+We collaborated with OtterSec in auditing the Aptos Framework and identifying critical security requirements for each module. We also collaborated with MoveBit in creating formal specifications for large parts of the Framework, which were then verified with the Prover. This isn't theoretical—the entire Aptos Framework has been formally verified, setting a new standard for blockchain security.
+
+Compared to other blockchains where formal verification is an afterthought or requires specialized tools, The Move Prover guarantees that the function implementation satisfies this specification for all input values. Developers simply add specifications alongside their code, and the Prover automatically verifies them during compilation.
+
+- **Specification language:** Express security properties in plain Move syntax, not complex mathematical notation
+- **CI/CD integration:** This automation significantly reduces the costs associated with repetitive manual audits
+- **Real-world usage:** [To the best of our knowledge, this represents one of the first instances of formal verification being applied on such a large scale in a smart contract framework](https://drops.dagstuhl.de/entities/document/10.4230/OASIcs.FMBC.2024.9)
+
+> **Developer empowerment:** Write specifications like "user balance never goes negative" and let the Prover ensure it's impossible to violate, no matter how complex your code becomes.
+
+## Mini-FAQ: Security
+
+**Q: How does Move compare to Solidity for security?**
+A: [Solidity seems to have re-invented all of the vulnerabilities that were wiped out of languages decades ago](https://blog.movementlabs.xyz/article/move-best-language-smart-contracts-blockchain-development) according to security experts, while Move eliminates entire bug categories by design.
+
+**Q: Is formal verification really practical for everyday developers?**
+A: Yes! Once a specification for the Prover is defined, it enables the Prover to automatically check the specification thereafter—it's as easy as writing tests.
+
+**Q: What happens if a security issue is found after deployment?**
+A: Aptos supports module upgrades, and the $1,000,000 bug bounty program incentivizes security researchers to report issues responsibly.
+
+> **Learn more about Move's security principles:** For a deep dive into the design principles that make Move secure by default, see [Why Move?](../smart-contracts/why-move.mdx)
+
+# Developer Experience
+
+## First-Class Tooling Stack
+
+### Learning objective: Outline what devs get day 1
+
+- Aptos CLI for localnet, devnet, testnet, faucet, key-mgmt, compiling, publishing, and interacting with contracts
+- VS Code & JetBrains plugins with Move syntax + inline Prover feedback
+- Typescript/Rust/Python SDKs auto-generated from on-chain ABI
+
+## Rapid Iteration & In-Place Upgrades
+
+### Learning objective: Show how you "fix the plane while flying"
+
+- Module address stays constant across versions; downstream calls keep working
+- No proxy patterns; upgrade approved via on-chain governance or maintainer key
+- "Fix-the-plane-while-flying" flow matches Web2 continuous delivery
+
+## AI-Ready Documentation & Chatbot
+
+### Learning objective: Emphasize AI assist during build/learn cycles
+
+- Docs structured for chunkable LLM consumption—clear headers, low ambiguity; LLMs-txt.
+- Aptos Chatbot (in development) surfaces code snippets, CLI commands, API keys, on demand. Aptos Learn Vibe Coder prompts can walk a complete beginner through writing, compiling, and publishing their first smart contract on Aptos.
+- Cutting edge MCP abilities to speed up your development workflow
+
+## Onboarding meets you where you are
+
+### Learning objective: Reduce switching cost for Solidity/Solana devs
+
+- Ethereum-to-Aptos / Solana-to-Aptos cheatsheets and Aptos Learn Workshops map concepts 1-to-1
+- Starter templates (Create Aptos Dapp) for wallets, NFTs, DeFi primitives in Move + React
+- AI chatbot reminder, and Aptos Vibes showcase
+
+# Upgradeability & Modular Design
+
+## On-Chain Governance for Core Logic
+
+### Learning objective: Explain how protocol evolves without forks
+
+- Accounts, the APT coin, staking, and other system modules live as Move packages at `0x1`; updates are published through on-chain [governance proposals](https://github.com/aptos-foundation/mainnet-proposals), so validators vote the new code in—no hard fork or node reinstall needed.
+- The `0x1::gas_schedule` table and feature-flag resource are also on chain; a single gas/feature proposal can lower fees or enable new VM op-codes, and changes propagate within the next epoch (≈ 4 h).
+- Governance has already executed **100 +** framework or gas-table proposals—see the live list on [GovScan](https://govscan.live/aptos/proposals)—all applied without halting block production, demonstrating true zero-downtime upgrades.
+
+## Hot-Swappable VM & Consensus Layers
+
+### Learning objective: Reassure that today's dApps survive tomorrow's improvements
+
+- VM versioning guarantees backward compatibility; old bytecode still executes
+- Research-driven consensus upgrades (e.g., faster QC) can roll out with zero downtime like software patches
+- Testing gates (devnet → testnet → mainnet) catch regressions early.
+
+## Future-Proof Scaling Modules
+
+### Learning objective: Describe path to internal sharding & zk-features
+
+- Experimental homogeneous state shards are already coded behind a *feature gate*; once performance testing is complete, validators can vote to flip the switch and spread state across multiple shards without extra operator complexity—see the "internal sharding of a validator and **homogeneous state sharding**" note in the [Aptos White Paper](../../network/blockchain/aptos-white-paper.mdx).
+- *Aptos Confidential Transactions* (ACTs) are live on Devnet today, giving builders a plug-and-play way to hide balances and transfer amounts with zero-knowledge proofs; details and API snippets are in the launch post "[Confidential Transactions now live on Aptos Devnet.](https://forum.aptosfoundation.org/t/confidential-transactions-now-live-on-aptos-devnet/16355)" (June 2025)
+- The roadmap explicitly reserves VM op-code slots for alternative signature schemes (e.g., BLS, PQC) and the core team is already researching post-quantum options, as called out by co-founder Avery Ching in May 2025—see "[Aptos prepares for post-quantum security.](https://blockchain.news/flashnews/aptos-prepares-for-post-quantum-security-crypto-resilience-and-future-proofing-highlighted-by-alinush407)"
+
+# Ecosystem Readiness
+
+## Wallet & Account Abstraction Landscape
+
+### Learning objective: Demonstrate user-friendly entry points
+
+- Petra, Martian, Pontem wallets support social recovery & human names (`.apt`)
+- Sponsored transactions let dApps pay gas—user sees "sign, done" UX
+    - [Native support](../guides/sponsored-transactions.mdx) for sponsored transactions
+    - [Comprehensive SDK documentation](../sdks/ts-sdk/building-transactions/sponsoring-transactions.mdx) for implementation
+
+## Bridges & Liquidity
+
+### Learning objective: Prove asset mobility into/out of Aptos
+
+- **Wormhole** and **LayerZero** bridges are both live on Aptos; Wormhole's partners also launched a [$50 M cross-chain ecosystem fund](https://www.businesswire.com/news/home/20230518005218/en/Leading-Crypto-Teams-and-Institutional-Investors-Team-Up-to-Launch-a-50M-Cross-Chain-Ecosystem-Fund-Powered-by-Wormhole) to seed early liquidity and dApps.
+- **Native USDC** (Oct 2024) and **native USDT** (Oct 2024) are already minted on Aptos, and both trade on major CEX spot pairs—see Circle's announcement "[Native USDC on Aptos](https://www.circle.com/blog/now-available-native-usdc-on-aptos)" and the Aptos Foundation note "[USDT on the Move](https://aptosfoundation.org/currents/usdt-on-the-move-tether-aptos-integration)."
+- The Wormhole codebase that services Aptos has been audited by both [Halborn](https://aptosfoundation.org/ecosystem/project/halborn) and [Kudelski Security](https://github.com/wormhole-foundation/wormhole-audits/blob/main/2022-08-16_kudelski.pdf); since Aptos mainnet launched in 2022 there have been **no Aptos-specific bridge exploits reported**.
+
+## Live dApps & Network Metrics
+
+### Learning objective: Validate real adoption, not test-lab claims
+
+- Top DEX processes ~30 k swaps/day at &lt;$0.002 fee each.
+- Monthly active accounts: **11 million**; daily active: **about 1 million** (June 2025) — [Explorer Analytics](https://explorer.aptoslabs.com/analytics?network=mainnet).
+- Two record peaks: *115 million transactions (May 25, 2024)* and *51.6 million transactions (Aug 13, 2024)* with no fee surge.
+
+## Data & Analytics Tooling
+
+### Learning objective: Show transparency for builders and analysts
+
+- [Data Providers](../apis/data-providers.mdx): GraphQL indexer + REST API expose full block/event tables.
+- API returns full transaction object graph—easy for BI tools / AI agents
+- "Data Analyst Guide" series ([Pt 1](https://medium.com/aptoslabs/data-analyst-guide-to-aptos-pt-1-816367edc1c5), [Pt 2](https://medium.com/aptoslabs/data-analyst-guide-to-aptos-defi-swaps-pt2-e343ac6be84e), [Pt 3](https://medium.com/@aptoslabs/data-analyst-guide-to-aptos-supply-and-volume-pt-3-535e312946ad)) walks through SQL for validator sets, swaps, and supply.
+
+# When to Choose Aptos
+
+## High-Frequency, Low-Latency Workloads
+
+### Learning objective: Map performance to real use cases
+
+- Real-time games, order-book DEXs, social feeds needing sub-second writes.
+- Built-in parallelism keeps UX smooth even at peak TPS.
+- No extra infra layers to maintain.
+
+## Security-Critical Assets
+
+### Learning objective: Position Move as safest default for value storage
+
+- Formal verification + runtime guards suit regulated or custodial assets.
+- Institutions avoid proxy-layers common on other chains.
+- Safety story resonates with fintech auditors.
+
+## Rapidly-Evolving Products
+
+### Learning objective: Convey upgradeability advantage
+
+- Are you shipping weekly? Upgrade modules in place; users keep same addresses.
+- No forced migrations or proxy rewiring.
+- Governance can toggle new features on demand.
+
+## Seamless Onboarding for Non-Crypto Users
+
+### Learning objective: Highlight account abstraction & sponsored gas
+
+- Email / OAuth logins via Aptos Connect; seed phrase optional.
+- Sponsored gas lets first-time users transact with zero balance.
+- UX parity with Web2 apps → lower bounce rates.
+
+# Glossary
+
+## Block-STM
+
+### Parallel execution engine that schedules non-conflicting transactions simultaneously
+
+## AptosBFT
+
+### Variant of HotStuff consensus with pipelined voting and rotating leaders for liveness
+
+## Move
+
+### Resource-oriented smart-contract language ensuring asset safety and type soundness
+
+## TPS (Transactions Per Second)
+
+### Metric for throughput; Aptos targets 160k+ TPS under lab conditions
+
+## VM (Virtual Machine)
+
+### Runtime executing Move bytecode; upgradeable without contract redeploy
+
+## ABI (Application Binary Interface)
+
+### Describes callable functions/resources; used to auto-generate SDK clients
+
+## ANS (Aptos Name Service)
+
+### Maps human-readable names to 256-bit account addresses
+
+## APT
+
+### Native coin powering gas fees, governance, and staking on Aptos 
